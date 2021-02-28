@@ -1,0 +1,10 @@
+{% extends 'layout.html' %}
+{%block content%}
+
+<form class="box" action="/chat" method="POST">
+<h1>Login</h1>
+    <input type="text" placeholder="username" name="username" autocomplete="off">
+    <input type='text' placeholder='password' name='password' autocomplete="off">
+    <input type="submit" value="login">
+</form>
+{%endblock%}
