@@ -4,3 +4,6 @@ this is a simple chat application made in Flask backend and using Socket.io for 
 currently the following features are supported-
 1) sign up/login
 2) one public chat room
+
+#to use:
+just download the lab9 folder, install requirments.txt, and do flask run inside the folder.
