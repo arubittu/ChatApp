@@ -7,3 +7,11 @@ currently the following features are supported-
 
 #to use:
 just download the lab9 folder, install requirments.txt, and do flask run inside the folder.
+
+# Pictures
+
+## signup
+![alt text](https://github.com/arubittu/ChatApp/blob/main/pics%20of%20chatapp/login.JPG)
+
+## chat
+![aly_text](https://github.com/arubittu/ChatApp/blob/main/pics%20of%20chatapp/chat.JPG)
