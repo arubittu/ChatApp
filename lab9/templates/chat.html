@@ -1,84 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">    
     <link href="/static/styles.css" rel="stylesheet">
     
     <title> chatroom </title>
     <meta charset="utf-8">
 
-<style>.heart{color:#e25555;}</style>
-<link rel="stylesheet" type="text/css" href="//code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" />
+    <style>.heart{color:#e25555;}</style>
+    <link rel="stylesheet" type="text/css" href="//code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" />
  
 </head>
 
 <body>
 
-<nav class="navbar navbar-dark bg-dark">
-  <div class="container-fluid">
-    <form class="d-flex" id='form_msg'>
-     <input id='textfield' class="form-control me-2" type="text" placeholder="enter message" autocomplete="off">
-      <button class="btn btn-outline-success" id='pro button' type="submit">Send</button>
-      
-    </form>
-  </div>
-</nav>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <form class="d-flex" id='form_msg'>
+            <input id='textfield' class="form-control me-2" type="text" placeholder="enter message" autocomplete="off">
+            <button class="btn btn-outline-success" id='pro button' type="submit">Send</button>
+            </form>
+        </div>
+    </nav>
 
-<h1 class=>Welcome {{username}}</h1>
+    <h1 class=>Welcome {{username}}</h1>
  
-<div id="chatspace">
-
-</div>
+    <div id="chatspace">  
+    </div>
  
  
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
-<script>
-    const socket=io.connect("http://127.0.0.1:5000");
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    
+    <script>
+        if(!localStorage.getItem('numMsgs')){
+            localStorage.setItem('numMsgs',0);
+        } // added counter for number of msgs in clients window
 
-    socket.on('connect',function(){
-        socket.emit('person',{username:"{{username}}"});
-        socket.send('{{username}}');
-        let msg_input=document.getElementById('textfield');
-        document.getElementById('form_msg').onsubmit=function(event){
-            event.preventDefault();//dont fucking get/post
-            let message=msg_input.value.trim();
-            
-            socket.emit('send_msg',{message:message,username:"{{username}}"});
+        const socket=io.connect("http://127.0.0.1:5000"); 
+
+            socket.on('connect',function(){ // activates on connection
+            socket.emit('person',{username:"{{username}}"});
+            socket.send('{{username}}');
+            let msg_input=document.getElementById('textfield');
+
+            document.getElementById('form_msg').onsubmit=function(event){
+
+                event.preventDefault();//dont fucking get/post
+                let message=msg_input.value.trim();
+
+                socket.emit('send_msg',{message:message,username:"{{username}}"});
         
-            msg_input.value = '';
-            msg_input.focus();
-        }
-        socket.on('disconnect',function(){
-            console.log('{{username}} has disconnected');
-            socket.emit('delete',{username:"{{username}}"});
-        });
+                msg_input.value = '';
+                msg_input.focus();
+        };
+
+            socket.on('disconnect',function(){ // as the name sugests
+
+                console.log('{{username}} has disconnected');
+                socket.emit('delete',{username:"{{username}}"});
+            });
 
     });
 
-    socket.on('received_msg',function(data){
-        console.log(data);
-        let msg_toshow=data['message'];
-        let name=data['username'];
-        document.getElementById('chatspace').innerHTML+=`<div class="msg">${name}: ${msg_toshow}</div>`;
+        socket.on('received_msg',function(data){ // activates when msg received from server
+ 
+            console.log(data);
+            let msg_toshow=data['message'];
+            let name=data['username'];
+            let numMsgs=localStorage.getItem('numMsgs');
+            if(numMsgs==0){
+            document.getElementById('chatspace').innerHTML+=`<div id = 'msgs' class="msg">${name}: ${msg_toshow}</div>`;
+             
+            }
+            else{
+                let childnodes=document.querySelectorAll('#msgs');
+                //let childnodes =chatspace.childNodes;
+                childnodes.forEach(lol=>{
+                    lol.id = "past";//so animation doesnt run on them
+                });
+                document.getElementById('chatspace').innerHTML+=`<div id = 'msgs' class="msg">${name}: ${msg_toshow}</div>`;
+                
+
+ 
+            }
+
+            numMsgs++;
+            localStorage.setItem('numMsgs',numMsgs);
 
     });
 
-    socket.on('person_connected',function(name){
-        //document.getElementById('chatspace').innerHTML+=`<p> ${name} has connected!</p>`;
+        socket.on('person_connected',function(name){ //this does nothing temporarily
+            //document.getElementById('chatspace').innerHTML+=`<p> ${name} has connected!</p>`;
 
     });
 
  
-
-    socket.on('online',function(data){
-        console.log(data)
+        socket.on('online',function(data){ 
+            console.log(data);
     });
     
 
-</script>
+    </script>
 
 </body>
  
